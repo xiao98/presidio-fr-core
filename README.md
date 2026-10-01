@@ -20,7 +20,7 @@ MISTRAL_API_KEY=… npm start            # ou OPENAI_API_KEY / ANTHROPIC_API_KEY
 
 Puis, dans le client : base URL `http://127.0.0.1:8787/v1`, clé API quelconque (la vraie clé reste dans l'environnement de la passerelle). Le fournisseur est choisi d'après le préfixe du modèle (`mistral-…`, `gpt-…`, `claude-…`) ou l'en-tête `x-pfr-upstream`.
 
-Variables : `PFR_PORT` (8787), `PFR_DATA_DIR` (`./data` : registre, clé de dérivation, cache du modèle), `PFR_NER=off` pour les règles seules, `PFR_DEFAULT_UPSTREAM`.
+Variables : `PFR_SHOW_MASKED=1` (affiche dans le terminal le dernier message tel que le fournisseur le reçoit, placeholders seulement), `PFR_PORT` (8787), `PFR_DATA_DIR` (`./data` : registre, clé de dérivation, cache du modèle), `PFR_NER=off` pour les règles seules, `PFR_DEFAULT_UPSTREAM`.
 
 ## Ce qui est masqué, et comment
 

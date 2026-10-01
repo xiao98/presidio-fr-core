@@ -47,6 +47,13 @@ export function createGateway(config) {
     catch (e) { audit({ event: "refused", reason: String(e && e.message) }); return json(res, 503, { error: { message: "privacy filter unavailable, request refused: " + (e && e.message) } }); }
     const { map, findings } = masked;
     audit({ event: "request", protocol, upstream: name, model: body.model, stream: !!body.stream, masked: Object.values(findings).reduce((a, b) => a + b, 0), byType: findings });
+    // PFR_SHOW_MASKED=1: print what the provider will receive (placeholders only, never the originals)
+    if (process.env.PFR_SHOW_MASKED === "1") {
+      const last = (masked.body.messages || []).at(-1);
+      const txt = last && (typeof last.content === "string" ? last.content : JSON.stringify(last.content));
+      console.log(`→ ${name} (${body.model}) masked ${Object.values(findings).reduce((a, b) => a + b, 0)} [${Object.keys(findings).join(", ")}]
+   ${String(txt).slice(0, 300)}`);
+    }
 
     const headers = { "content-type": "application/json" };
     if (protocol === "anthropic") { headers["x-api-key"] = up.apiKey; headers["anthropic-version"] = req.headers["anthropic-version"] || "2023-06-01"; }
