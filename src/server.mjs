@@ -73,10 +73,12 @@ export function createGateway(state) {
     const { map, findings } = masked;
     const total = Object.values(findings).reduce((a, b) => a + b, 0);
     audit({ event: "request", protocol, upstream: name, model: body.model, stream: !!body.stream, masked: total, byType: findings, tier });
+    // one line per request on the terminal; the masked text itself only with PFR_SHOW_MASKED=1 (placeholders only, never originals)
+    console.log(`→ ${name} (${body.model}) masked ${total}${total ? " [" + Object.entries(findings).map(([k, v]) => k + " " + v).join(", ") + "]" : ""}`);
     if (process.env.PFR_SHOW_MASKED === "1") {
       const last = (masked.body.messages || []).at(-1);
       const txt = last && (typeof last.content === "string" ? last.content : JSON.stringify(last.content));
-      console.log(`→ ${name} (${body.model}) masked ${total} [${Object.keys(findings).join(", ")}]\n   ${String(txt).slice(0, 300)}`);
+      console.log("   " + String(txt).slice(0, 300));
     }
 
     const headers = { "content-type": "application/json" };
