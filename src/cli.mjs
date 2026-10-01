@@ -10,6 +10,14 @@ import { randomBytes } from "node:crypto";
 import { createGateway } from "./server.mjs";
 import { loadConfig } from "./config.mjs";
 
+// Launched by the desktop shell: exit as soon as the parent's stdin pipe closes (parent gone).
+if (process.env.PFR_PARENT_WATCH === "1") {
+  process.stdin.on("end", () => process.exit(0));
+  process.stdin.on("close", () => process.exit(0));
+  process.stdin.on("error", () => process.exit(0));
+  process.stdin.resume();
+}
+
 const dataDir = path.resolve(process.env.PFR_DATA_DIR || "data");
 fs.mkdirSync(dataDir, { recursive: true });
 

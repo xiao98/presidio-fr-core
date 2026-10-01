@@ -22,6 +22,12 @@ Puis, dans le client : base URL `http://127.0.0.1:8787/v1`, clé API quelconque 
 
 Chaque requête écrit une ligne dans le terminal (fournisseur, modèle, nombre masqué par type). Variables : `PFR_SHOW_MASKED=1` (ajoute le dernier message tel que le fournisseur le reçoit, placeholders seulement), `PFR_PORT` (8787), `PFR_DATA_DIR` (`./data` : registre, clé de dérivation, cache du modèle), `PFR_NER=off` pour les règles seules, `PFR_DEFAULT_UPSTREAM`.
 
+## Application de bureau (un seul installateur)
+
+`npm run desktop` lance l'application : une icône dans la zone de notification, la passerelle démarrée en arrière-plan (processus Node fils, relancé s'il tombe, arrêté avec l'application), et le panneau dans une fenêtre. Fermer la fenêtre la réduit dans la zone de notification ; « Lancer au démarrage » dans le menu de l'icône. Les données (config, registre, clé de dérivation, cache du modèle) vivent dans le dossier utilisateur de l'application, pas dans le dépôt.
+
+`npm run dist` produit `dist/presidio-fr-setup-<version>.exe` (installateur Windows en un clic, non signé pour l'instant) ; `npm run dist:linux` les AppImage/deb. `npm run test:desktop` vérifie le démarrage complet avec Playwright.
+
 ## Panneau de contrôle
 
 `http://127.0.0.1:8787/` : vue d'ensemble (état du modèle, compteurs), fournisseurs (base URL + clé par fournisseur, fournisseur par défaut), politique (types masqués un par un, modèle local on/off, note de convention), registre (dernières requêtes, export CSV), licence. Les réglages vivent dans `data/config.json` ; les variables d'environnement ne servent qu'au premier démarrage pour le remplir. Les clés ne sont jamais renvoyées au panneau (seuls les 4 derniers caractères). Les modifications s'appliquent à la requête suivante, sans redémarrage ; activer le modèle depuis le panneau le charge en arrière-plan, et tant qu'il charge les requêtes qui en ont besoin sont refusées (503) plutôt que transmises en clair.
@@ -41,6 +47,7 @@ Design repris de la lecture de [AstrLink](https://github.com/Calcium-Ion/AstrLin
 
 ```bash
 npm test               # allocation, restauration en flux, parcours OpenAI/Anthropic, passerelle complète contre un faux fournisseur, panneau (validation, masquage des clés, effet de la politique)
+npm run test:desktop   # application Electron : passerelle fille, fenêtre, données dans le dossier utilisateur, arrêt propre
 npm run sync           # recopie le moteur depuis ../presidio-fr-extension/src
 ```
 

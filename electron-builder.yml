@@ -1,0 +1,38 @@
+appId: fr.presidio.desktop
+productName: presidio-fr
+copyright: "MIT — presidio-fr"
+directories:
+  output: dist
+  buildResources: desktop/icons
+# No asar: the gateway is spawned as a plain Node script and onnxruntime-node ships native binaries.
+asar: false
+files:
+  - desktop/**
+  - src/**
+  - package.json
+  - "!**/*.map"
+  - "!test/**"
+  - "!scripts/**"
+  - "!store/**"
+  - "!data/**"
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: desktop/icons/icon.ico
+nsis:
+  oneClick: true
+  perMachine: false
+  runAfterFinish: true
+  createDesktopShortcut: true
+  shortcutName: presidio-fr
+  artifactName: presidio-fr-setup-${version}.${ext}
+linux:
+  target: [AppImage, deb]
+  icon: desktop/icons
+  category: Utility
+  artifactName: presidio-fr-${version}-${arch}.${ext}
+mac:
+  target: [dmg]
+  icon: desktop/icons/icon.png
+  category: public.app-category.utilities
