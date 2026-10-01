@@ -14,7 +14,8 @@
     "desktop": "electron .",
     "dist": "electron-builder --win nsis",
     "dist:linux": "electron-builder --linux",
-    "test:desktop": "node --test test/desktop.test.mjs"
+    "test:desktop": "node --test test/desktop.test.mjs",
+    "test:packaged": "node --test test/packaged.test.mjs"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.0"

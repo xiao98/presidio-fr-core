@@ -15,6 +15,12 @@ files:
   - "!scripts/**"
   - "!store/**"
   - "!data/**"
+  # transformers.js' Node bundle uses onnxruntime-node only; drop the browser runtime (120 MB of wasm)
+  - "!node_modules/onnxruntime-web/**"
+  # and the other platforms' native binaries (each installer is per-platform anyway)
+  - "!node_modules/onnxruntime-node/bin/napi-v*/darwin/**"
+  - "!node_modules/onnxruntime-node/bin/napi-v*/linux/**"
+  - "!node_modules/onnxruntime-node/bin/napi-v*/win32/arm64/**"
 win:
   target:
     - target: nsis
