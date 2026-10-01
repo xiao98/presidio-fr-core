@@ -125,7 +125,7 @@ async function load() {
   // upstreams
   $("#up-list").innerHTML = Object.keys(UP_NAMES).map(n => { const u = cfg.upstreams[n] || {}; return `
     <div class="card"><b>${UP_NAMES[n]}</b> ${u.configured ? '<span class="ok">· configuré</span>' : '<span class="muted">· non configuré</span>'}
-      <div class="row"><div><label>Base URL</label><input type="text" data-up="${n}" data-f="base" value="${u.base || ""}" placeholder="${n === "openai" ? "https://api.openai.com" : n === "mistral" ? "https://api.mistral.ai" : "https://api.anthropic.com"}"></div>
+      <div class="row"><div><label>Base URL</label><input type="text" data-up="${n}" data-f="base" value="${u.base || (n === "openai" ? "https://api.openai.com" : n === "mistral" ? "https://api.mistral.ai" : "https://api.anthropic.com")}"></div>
       <div><label>Clé API ${u.configured ? "(laisser vide pour conserver " + u.apiKey + ")" : ""}</label><input type="password" data-up="${n}" data-f="apiKey" placeholder="sk-…"></div>
       <div style="flex:0"><button class="primary" data-save-up="${n}">Enregistrer</button> ${u.configured ? `<button class="ghost" data-del-up="${n}">Retirer</button>` : ""}</div></div></div>`; }).join("");
   $("#def-up").innerHTML = Object.keys(cfg.upstreams).map(n => `<option value="${n}" ${n === cfg.defaultUpstream ? "selected" : ""}>${UP_NAMES[n] || n}</option>`).join("") || "<option value=''>aucun</option>";
