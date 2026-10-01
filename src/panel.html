@@ -3,152 +3,318 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>presidio-fr — panneau</title>
+<title>presidio-fr</title>
 <style>
-  :root { --bg: #f8fafc; --fg: #0f172a; --muted: #64748b; --card: #fff; --line: #e2e8f0; --ok: #047857; --warn: #b45309; --bad: #b91c1c; --accent: #0f766e; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #0b1220; --fg: #e5e7eb; --muted: #94a3b8; --card: #111827; --line: #1f2937; } }
+  :root {
+    --bg: #f6f7f9; --panel: #ffffff; --ink: #14181f; --ink-2: #4b5563; --ink-3: #8a94a6; --line: #e6e8ee;
+    --brand: #0f766e; --brand-ink: #ffffff; --brand-soft: #e6f4f1;
+    --ok: #15803d; --ok-soft: #e8f6ec; --warn: #b45309; --warn-soft: #fff4e5; --bad: #b91c1c; --bad-soft: #fdecec;
+    --radius: 12px; --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f1218; --panel: #161a22; --ink: #e8eaf0; --ink-2: #b4bccb; --ink-3: #7b8597; --line: #262c38;
+      --brand: #2dd4bf; --brand-ink: #062b27; --brand-soft: #113b37; --ok: #4ade80; --ok-soft: #10301f; --warn: #fbbf24; --warn-soft: #3a2a0c; --bad: #f87171; --bad-soft: #3b1515;
+      --shadow: none; }
+  }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  header { padding: 14px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; }
-  header h1 { font-size: 16px; margin: 0; }
-  header .pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--line); color: var(--muted); }
-  nav { display: flex; gap: 4px; padding: 10px 20px 0; border-bottom: 1px solid var(--line); }
-  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 10px; color: var(--muted); cursor: pointer; font: inherit; }
-  nav button.on { color: var(--fg); border-color: var(--accent); }
-  main { padding: 18px 20px; max-width: 980px; }
+  html, body { height: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 14px/1.5 -apple-system, "Segoe UI", Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .app { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+  aside { background: var(--panel); border-right: 1px solid var(--line); padding: 18px 14px; display: flex; flex-direction: column; gap: 4px; }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 6px 8px 16px; }
+  .brand svg { width: 28px; height: 28px; }
+  .brand b { font-size: 15px; letter-spacing: .2px; }
+  .brand small { display: block; color: var(--ink-3); font-size: 11px; margin-top: -2px; }
+  nav button { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; background: none; border: 0; border-radius: 8px; padding: 9px 10px; color: var(--ink-2); font: inherit; cursor: pointer; }
+  nav button:hover { background: var(--bg); color: var(--ink); }
+  nav button.on { background: var(--brand-soft); color: var(--brand); font-weight: 600; }
+  nav button svg { width: 16px; height: 16px; flex: none; }
+  .side-foot { margin-top: auto; padding: 10px 8px 0; font-size: 12px; color: var(--ink-3); display: flex; flex-direction: column; gap: 8px; }
+  .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+  .lang button { background: none; border: 0; padding: 3px 10px; font: inherit; font-size: 12px; color: var(--ink-3); cursor: pointer; }
+  .lang button.on { background: var(--ink); color: var(--panel); }
+  main { padding: 28px 32px 48px; max-width: 1040px; }
+  h1 { font-size: 20px; margin: 0 0 4px; } .lead { color: var(--ink-2); margin: 0 0 22px; }
   section { display: none; } section.on { display: block; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-  .stat .n { font-size: 26px; font-weight: 600; } .stat .l { color: var(--muted); font-size: 12px; }
-  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
-  label { display: block; margin: 8px 0 4px; color: var(--muted); font-size: 12px; }
-  input[type=text], input[type=password] { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); font: inherit; }
-  .row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; } .row > div { flex: 1; min-width: 180px; }
-  button.primary { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; font: inherit; cursor: pointer; }
-  button.ghost { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px; font: inherit; color: var(--fg); cursor: pointer; }
-  .types { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 14px; }
-  .types label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg); margin: 2px 0; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; } th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); } th { color: var(--muted); font-weight: 500; }
-  code { background: var(--line); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
-  .msg { margin-top: 8px; font-size: 13px; min-height: 18px; }
-  .muted { color: var(--muted); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .card h2 { font-size: 14px; margin: 0 0 4px; } .card .sub { color: var(--ink-3); font-size: 12.5px; margin: 0 0 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .stat .n { font-size: 26px; font-weight: 650; letter-spacing: -.3px; line-height: 1.1; } .stat .l { color: var(--ink-3); font-size: 12px; margin-top: 4px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); } .pill.warn { background: var(--warn-soft); color: var(--warn); } .pill.bad { background: var(--bad-soft); color: var(--bad); } .pill.muted { background: var(--line); color: var(--ink-2); }
+  label.f { display: block; font-size: 12px; color: var(--ink-3); margin: 10px 0 4px; }
+  input[type=text], input[type=password], select { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: inherit; }
+  input:focus, select:focus { outline: 2px solid var(--brand-soft); border-color: var(--brand); }
+  .row { display: flex; gap: 12px; align-items: end; flex-wrap: wrap; } .row > div { flex: 1; min-width: 200px; } .row > .act { flex: 0; display: flex; gap: 8px; }
+  .btn { border: 0; border-radius: 8px; padding: 8px 14px; font: inherit; font-weight: 600; cursor: pointer; background: var(--brand); color: var(--brand-ink); }
+  .btn.ghost { background: transparent; color: var(--ink-2); border: 1px solid var(--line); font-weight: 500; }
+  .btn.sm { padding: 5px 10px; font-size: 12px; }
+  .msg { font-size: 12.5px; min-height: 18px; margin-top: 8px; color: var(--ink-3); } .msg.bad { color: var(--bad); }
+  .types { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 6px 16px; }
+  .chk { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 4px 0; cursor: pointer; } .chk input { accent-color: var(--brand); }
+  .chk .d { color: var(--ink-3); font-size: 11.5px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; } th, td { text-align: left; padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: top; } th { color: var(--ink-3); font-weight: 500; font-size: 12px; }
+  code, pre { font-family: var(--mono); font-size: 12px; } code { background: var(--bg); border: 1px solid var(--line); padding: 1px 6px; border-radius: 5px; }
+  pre { background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 8px 0 0; white-space: pre-wrap; word-break: break-all; position: relative; }
+  pre .cp { position: absolute; top: 6px; right: 6px; }
+  .tools { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .tool { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 16px; box-shadow: var(--shadow); }
+  .tool h3 { margin: 0 0 2px; font-size: 14px; } .tool .how { color: var(--ink-3); font-size: 12.5px; margin: 0 0 6px; }
+  .cover { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } @media (max-width: 760px) { .cover { grid-template-columns: 1fr; } .app { grid-template-columns: 1fr; } aside { flex-direction: row; flex-wrap: wrap; } }
+  .cover .card { margin: 0; }
+  .muted { color: var(--ink-3); }
+  .warnbox { background: var(--warn-soft); color: var(--warn); border-radius: 8px; padding: 10px 12px; font-size: 13px; }
 </style>
 </head>
 <body>
-<header><h1>🛡 presidio-fr</h1><span class="pill" id="addr"></span><span class="pill" id="tier"></span></header>
-<nav>
-  <button data-tab="overview" class="on">Vue d'ensemble</button>
-  <button data-tab="upstreams">Fournisseurs</button>
-  <button data-tab="policy">Politique</button>
-  <button data-tab="registre">Registre</button>
-  <button data-tab="licence">Licence</button>
-</nav>
-<main>
-  <section id="overview" class="on">
-    <div class="grid">
-      <div class="card stat"><div class="n" id="s-model">…</div><div class="l">modèle local (noms, adresses)</div></div>
-      <div class="card stat"><div class="n" id="s-requests">0</div><div class="l">requêtes traitées</div></div>
-      <div class="card stat"><div class="n" id="s-masked">0</div><div class="l">données masquées</div></div>
-      <div class="card stat"><div class="n" id="s-refused">0</div><div class="l">requêtes refusées (filtre indisponible)</div></div>
+<div class="app">
+  <aside>
+    <div class="brand">
+      <svg viewBox="0 0 100 100"><polygon points="6,14 50,6 94,14 94,55 50,94 6,55" fill="#111827"/><polygon points="12.2,19 50,12.2 87.8,19 87.8,54.3 50,87.8 12.2,54.3" fill="#059669"/><rect x="24" y="40" width="17.3" height="16" fill="#0055a4"/><rect x="41.3" y="40" width="17.3" height="16" fill="#fff"/><rect x="58.6" y="40" width="17.4" height="16" fill="#ef4135"/></svg>
+      <div><b>presidio-fr</b><small id="addr"></small></div>
     </div>
-    <div class="card">
-      <b>Brancher un client</b>
-      <p class="muted">Dans tout client compatible OpenAI (NextChat, AnythingLLM, un script) : base URL <code id="base-url"></code>, clé API quelconque, nom de modèle du fournisseur. Pour Anthropic : <code id="base-url-ant"></code>. Les vraies clés restent ici.</p>
+    <nav>
+      <button data-tab="overview" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg><span data-i="nav.overview"></span></button>
+      <button data-tab="connect"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg><span data-i="nav.connect"></span></button>
+      <button data-tab="upstreams"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg><span data-i="nav.upstreams"></span></button>
+      <button data-tab="policy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/></svg><span data-i="nav.policy"></span></button>
+      <button data-tab="registre"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2h9l5 5v15H6z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg><span data-i="nav.registre"></span></button>
+      <button data-tab="licence"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="4"/><path d="M10.9 12.1 21 2M15 7l3 3M18 4l3 3"/></svg><span data-i="nav.licence"></span></button>
+    </nav>
+    <div class="side-foot">
+      <div class="lang"><button data-lang="fr">FR</button><button data-lang="en">EN</button></div>
+      <div id="tier" class="pill muted"></div>
     </div>
-  </section>
+  </aside>
 
-  <section id="upstreams">
-    <div id="up-list"></div>
-    <div class="card">
-      <label>Fournisseur par défaut (quand le nom de modèle ne permet pas de choisir)</label>
-      <div class="row"><div><select id="def-up" style="padding:7px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg)"></select></div><div><button class="primary" id="save-def">Enregistrer</button></div></div>
-      <div class="msg" id="up-msg"></div>
-    </div>
-  </section>
+  <main>
+    <section id="overview" class="on">
+      <h1 data-i="ov.title"></h1><p class="lead" data-i="ov.lead"></p>
+      <div class="grid">
+        <div class="stat"><div class="n" id="s-model">…</div><div class="l" data-i="ov.model"></div></div>
+        <div class="stat"><div class="n" id="s-requests">0</div><div class="l" data-i="ov.requests"></div></div>
+        <div class="stat"><div class="n" id="s-masked">0</div><div class="l" data-i="ov.masked"></div></div>
+        <div class="stat"><div class="n" id="s-refused">0</div><div class="l" data-i="ov.refused"></div></div>
+      </div>
+      <div class="cover">
+        <div class="card"><h2 data-i="ov.covered.t"></h2><p class="sub" data-i="ov.covered.s"></p><ul class="muted" style="margin:0;padding-left:18px" id="ov-covered"></ul></div>
+        <div class="card"><h2 data-i="ov.notcovered.t"></h2><p class="sub" data-i="ov.notcovered.s"></p><ul class="muted" style="margin:0;padding-left:18px" id="ov-notcovered"></ul></div>
+      </div>
+    </section>
 
-  <section id="policy">
-    <div class="card">
-      <b>Types masqués</b> <span class="muted">— un type décoché est transmis en clair</span>
-      <div class="types" id="types" style="margin-top:10px"></div>
-    </div>
-    <div class="card">
-      <label><input type="checkbox" id="p-ner"> Modèle local pour les noms, adresses, sociétés (sinon règles seules : numéros, e-mails, téléphones)</label>
-      <label><input type="checkbox" id="p-notice"> Injecter la note de convention dans le canal système (recommandé : le modèle recopie les marqueurs tels quels)</label>
-      <div style="margin-top:10px"><button class="primary" id="save-policy">Enregistrer</button></div>
-      <div class="msg" id="policy-msg"></div>
-    </div>
-  </section>
+    <section id="connect">
+      <h1 data-i="cn.title"></h1><p class="lead" data-i="cn.lead"></p>
+      <div class="card"><h2 data-i="cn.rule.t"></h2><p class="sub" data-i="cn.rule.s"></p>
+        <div class="row"><div><label class="f">OpenAI</label><pre id="cn-openai"></pre></div><div><label class="f">Anthropic</label><pre id="cn-anthropic"></pre></div></div>
+      </div>
+      <div class="tools" id="tools"></div>
+    </section>
 
-  <section id="registre">
-    <div class="card">
-      <div class="row"><div><b>Dernières requêtes</b> <span class="muted">— jamais une valeur, seulement des comptes par type</span></div><div style="flex:0"><a class="ghost" href="/registre.csv" download style="text-decoration:none;display:inline-block">Exporter CSV</a></div></div>
-      <table style="margin-top:10px"><thead><tr><th>horodatage</th><th>événement</th><th>fournisseur</th><th>modèle</th><th>masqué</th><th>par type</th></tr></thead><tbody id="reg-body"></tbody></table>
-    </div>
-  </section>
+    <section id="upstreams">
+      <h1 data-i="up.title"></h1><p class="lead" data-i="up.lead"></p>
+      <div id="up-list"></div>
+      <div class="card"><h2 data-i="up.default.t"></h2><p class="sub" data-i="up.default.s"></p>
+        <div class="row"><div><select id="def-up"></select></div><div class="act"><button class="btn" id="save-def" data-i="btn.save"></button></div></div>
+        <div class="msg" id="up-msg"></div>
+      </div>
+    </section>
 
-  <section id="licence">
-    <div class="card">
-      <div id="lic-status"></div>
-      <label>Clé de licence</label>
-      <input type="text" id="lic-key" placeholder="PFR1.…">
-      <div style="margin-top:10px"><button class="primary" id="save-lic">Enregistrer</button></div>
-      <div class="msg" id="lic-msg"></div>
-      <p class="muted">Sans clé, 14 jours d'essai complets puis règles seules. La clé est vérifiée localement (signature Ed25519), rien n'est envoyé.</p>
-    </div>
-  </section>
-</main>
+    <section id="policy">
+      <h1 data-i="po.title"></h1><p class="lead" data-i="po.lead"></p>
+      <div class="card"><h2 data-i="po.types.t"></h2><p class="sub" data-i="po.types.s"></p><div class="types" id="types"></div></div>
+      <div class="card"><h2 data-i="po.engine.t"></h2>
+        <label class="chk"><input type="checkbox" id="p-ner"><span><span data-i="po.ner"></span><br><span class="d" data-i="po.ner.d"></span></span></label>
+        <label class="chk"><input type="checkbox" id="p-notice"><span><span data-i="po.notice"></span><br><span class="d" data-i="po.notice.d"></span></span></label>
+        <div style="margin-top:12px"><button class="btn" id="save-policy" data-i="btn.save"></button></div>
+        <div class="msg" id="policy-msg"></div>
+      </div>
+    </section>
+
+    <section id="registre">
+      <h1 data-i="rg.title"></h1><p class="lead" data-i="rg.lead"></p>
+      <div class="card">
+        <div class="row" style="align-items:center"><div><h2 style="margin:0" data-i="rg.recent"></h2></div><div class="act"><a class="btn ghost sm" href="/registre.csv" download data-i="rg.export"></a></div></div>
+        <table style="margin-top:10px"><thead><tr><th data-i="rg.c.ts"></th><th data-i="rg.c.ev"></th><th data-i="rg.c.up"></th><th data-i="rg.c.model"></th><th data-i="rg.c.n"></th><th data-i="rg.c.types"></th></tr></thead><tbody id="reg-body"></tbody></table>
+      </div>
+    </section>
+
+    <section id="licence">
+      <h1 data-i="li.title"></h1><p class="lead" data-i="li.lead"></p>
+      <div class="card">
+        <div id="lic-status" style="margin-bottom:8px"></div>
+        <label class="f" data-i="li.key"></label>
+        <input type="text" id="lic-key" placeholder="PFR1.…">
+        <div style="margin-top:12px"><button class="btn" id="save-lic" data-i="btn.save"></button></div>
+        <div class="msg" id="lic-msg"></div>
+        <p class="muted" style="font-size:12.5px;margin:12px 0 0" data-i="li.note"></p>
+      </div>
+    </section>
+  </main>
+</div>
+
 <script>
+const I18N = {
+  fr: {
+    "nav.overview": "Vue d'ensemble", "nav.connect": "Connecter vos outils", "nav.upstreams": "Fournisseurs", "nav.policy": "Politique", "nav.registre": "Registre", "nav.licence": "Licence",
+    "btn.save": "Enregistrer", "btn.remove": "Retirer", "btn.copy": "Copier", "btn.copied": "Copié",
+    "ov.title": "Passerelle locale de confidentialité", "ov.lead": "Vos outils IA parlent à cette passerelle ; elle masque les données personnelles avant de transmettre au fournisseur et restaure les valeurs dans la réponse. Rien ne quitte ce poste en clair.",
+    "ov.model": "modèle local (noms, adresses, sociétés)", "ov.requests": "requêtes traitées", "ov.masked": "données masquées", "ov.refused": "requêtes refusées (filtre indisponible)",
+    "ov.covered.t": "Ce qui est protégé", "ov.covered.s": "Tout outil où l'on peut saisir une adresse d'API.",
+    "ov.notcovered.t": "Ce qui ne l'est pas", "ov.notcovered.s": "Les applications qui ne permettent pas de changer d'adresse d'API.",
+    "cn.title": "Connecter vos outils", "cn.lead": "Une seule règle : remplacer l'adresse du fournisseur par celle de la passerelle. La clé API côté outil peut être n'importe quoi, la vraie clé est ici.",
+    "cn.rule.t": "Adresses de la passerelle", "cn.rule.s": "OpenAI-compatible (Chat Completions) et Anthropic (Messages).",
+    "up.title": "Fournisseurs", "up.lead": "Les requêtes masquées sont transmises à l'un de ces fournisseurs. Les clés restent sur ce poste et ne sont jamais renvoyées à cette page.",
+    "up.default.t": "Fournisseur par défaut", "up.default.s": "Utilisé quand le nom de modèle ne permet pas de choisir (gpt-… → OpenAI, mistral-… → Mistral, claude-… → Anthropic).",
+    "up.base": "Adresse (base URL)", "up.key": "Clé API", "up.keep": "laisser vide pour conserver", "up.configured": "configuré", "up.none": "non configuré", "up.saved": "Enregistré.",
+    "up.openai": "OpenAI, ou relais compatible", "up.mistral": "Mistral", "up.anthropic": "Anthropic",
+    "po.title": "Politique de masquage", "po.lead": "S'applique à la requête suivante, sans redémarrage.",
+    "po.types.t": "Types masqués", "po.types.s": "Un type décoché est transmis en clair.",
+    "po.engine.t": "Moteur", "po.ner": "Modèle local pour les noms, adresses et sociétés", "po.ner.d": "Sinon, règles seules : numéros, identifiants, e-mails, téléphones.",
+    "po.notice": "Note de convention dans le canal système", "po.notice.d": "Explique au modèle de recopier les marqueurs tels quels. Recommandé.",
+    "po.saved": "Enregistré, appliqué aux prochaines requêtes.",
+    "rg.title": "Registre", "rg.lead": "Une ligne par requête : horodatage, fournisseur, modèle, nombre de données masquées par type. Jamais une valeur.",
+    "rg.recent": "Dernières requêtes", "rg.export": "Exporter CSV", "rg.empty": "aucune requête pour l'instant",
+    "rg.c.ts": "horodatage", "rg.c.ev": "événement", "rg.c.up": "fournisseur", "rg.c.model": "modèle", "rg.c.n": "masqué", "rg.c.types": "par type",
+    "li.title": "Licence", "li.lead": "Vérifiée localement (signature Ed25519). Rien n'est envoyé.",
+    "li.key": "Clé de licence", "li.note": "Sans clé : 14 jours d'essai complets, puis règles seules (modèle désactivé).",
+    "li.licensed": "Licence valide", "li.trial": "Période d'essai", "li.free": "Version gratuite : règles seules", "li.until": "jusqu'au", "li.seats": "poste(s)", "li.refused": "clé refusée",
+    "tier.licensed": "licence", "tier.trial": "essai jusqu'au", "tier.free": "version gratuite",
+    "model.ready": "prêt", "model.loading": "chargement", "model.off": "désactivé", "model.error": "erreur",
+    "t.types": { PERSON: "Noms de personnes", ADDRESS: "Adresses postales", COMPANY: "Sociétés", DOB: "Dates de naissance", NIR: "N° sécurité sociale (NIR)", SIREN: "SIREN", SIRET: "SIRET", IBAN: "IBAN", FISCAL: "N° fiscal", PLAQUE: "Plaques d'immatriculation", PASSEPORT: "Passeports", EMAIL: "E-mails", TEL: "Téléphones", ID: "Autres identifiants", CARD: "Cartes bancaires", SECRET: "Secrets, clés API" },
+    "covered": ["Claude Code, Codex CLI, Gemini CLI", "Cursor, Continue, Zed, Cline", "Open WebUI, AnythingLLM, LibreChat, NextChat", "Scripts et outils internes (SDK OpenAI / Anthropic)", "ChatGPT, Claude.ai et Le Chat dans le navigateur, via l'extension"],
+    "notcovered": ["Applications de bureau ChatGPT et Claude", "Copilot dans Office, assistants intégrés aux SaaS"],
+  },
+  en: {
+    "nav.overview": "Overview", "nav.connect": "Connect your tools", "nav.upstreams": "Providers", "nav.policy": "Policy", "nav.registre": "Audit log", "nav.licence": "Licence",
+    "btn.save": "Save", "btn.remove": "Remove", "btn.copy": "Copy", "btn.copied": "Copied",
+    "ov.title": "Local privacy gateway", "ov.lead": "Your AI tools talk to this gateway; it masks personal data before forwarding to the provider and restores the values in the reply. Nothing leaves this machine in clear.",
+    "ov.model": "local model (names, addresses, companies)", "ov.requests": "requests handled", "ov.masked": "values masked", "ov.refused": "requests refused (filter unavailable)",
+    "ov.covered.t": "What is protected", "ov.covered.s": "Any tool that lets you set an API base URL.",
+    "ov.notcovered.t": "What is not", "ov.notcovered.s": "Applications that do not let you change the API address.",
+    "cn.title": "Connect your tools", "cn.lead": "One rule: replace the provider's address with the gateway's. The API key on the tool side can be anything, the real key lives here.",
+    "cn.rule.t": "Gateway addresses", "cn.rule.s": "OpenAI-compatible (Chat Completions) and Anthropic (Messages).",
+    "up.title": "Providers", "up.lead": "Masked requests are forwarded to one of these providers. Keys stay on this machine and are never sent back to this page.",
+    "up.default.t": "Default provider", "up.default.s": "Used when the model name does not decide (gpt-… → OpenAI, mistral-… → Mistral, claude-… → Anthropic).",
+    "up.base": "Base URL", "up.key": "API key", "up.keep": "leave empty to keep", "up.configured": "configured", "up.none": "not configured", "up.saved": "Saved.",
+    "up.openai": "OpenAI, or compatible relay", "up.mistral": "Mistral", "up.anthropic": "Anthropic",
+    "po.title": "Masking policy", "po.lead": "Applies to the next request, no restart.",
+    "po.types.t": "Masked types", "po.types.s": "An unchecked type is forwarded in clear.",
+    "po.engine.t": "Engine", "po.ner": "Local model for names, addresses and companies", "po.ner.d": "Otherwise rules only: numbers, identifiers, e-mails, phones.",
+    "po.notice": "Convention notice in the system channel", "po.notice.d": "Tells the model to copy markers verbatim. Recommended.",
+    "po.saved": "Saved, applied to the next requests.",
+    "rg.title": "Audit log", "rg.lead": "One line per request: timestamp, provider, model, number of masked values per type. Never a value.",
+    "rg.recent": "Recent requests", "rg.export": "Export CSV", "rg.empty": "no request yet",
+    "rg.c.ts": "timestamp", "rg.c.ev": "event", "rg.c.up": "provider", "rg.c.model": "model", "rg.c.n": "masked", "rg.c.types": "by type",
+    "li.title": "Licence", "li.lead": "Verified locally (Ed25519 signature). Nothing is sent.",
+    "li.key": "Licence key", "li.note": "Without a key: 14-day full trial, then rules only (model off).",
+    "li.licensed": "Valid licence", "li.trial": "Trial period", "li.free": "Free tier: rules only", "li.until": "until", "li.seats": "seat(s)", "li.refused": "key refused",
+    "tier.licensed": "licensed", "tier.trial": "trial until", "tier.free": "free tier",
+    "model.ready": "ready", "model.loading": "loading", "model.off": "off", "model.error": "error",
+    "t.types": { PERSON: "Person names", ADDRESS: "Postal addresses", COMPANY: "Companies", DOB: "Dates of birth", NIR: "Social security no. (NIR)", SIREN: "SIREN", SIRET: "SIRET", IBAN: "IBAN", FISCAL: "Tax number", PLAQUE: "Licence plates", PASSEPORT: "Passports", EMAIL: "E-mails", TEL: "Phone numbers", ID: "Other identifiers", CARD: "Payment cards", SECRET: "Secrets, API keys" },
+    "covered": ["Claude Code, Codex CLI, Gemini CLI", "Cursor, Continue, Zed, Cline", "Open WebUI, AnythingLLM, LibreChat, NextChat", "Scripts and internal tools (OpenAI / Anthropic SDKs)", "ChatGPT, Claude.ai and Le Chat in the browser, through the extension"],
+    "notcovered": ["ChatGPT and Claude desktop apps", "Copilot in Office, assistants built into SaaS products"],
+  },
+};
+// tool recipes: {name, how, snippet(base)}
+const TOOLS = (B) => [
+  { n: "Claude Code", fr: "Deux variables d'environnement avant de lancer claude.", en: "Two environment variables before starting claude.",
+    s: `export ANTHROPIC_BASE_URL=${B}\nexport ANTHROPIC_API_KEY=presidio-fr\nclaude` },
+  { n: "Codex CLI", fr: "Un fournisseur « presidio » dans ~/.codex/config.toml.", en: "A \"presidio\" provider in ~/.codex/config.toml.",
+    s: `[model_providers.presidio]\nname = "presidio-fr"\nbase_url = "${B}/v1"\nenv_key = "PRESIDIO_KEY"\n\nmodel_provider = "presidio"\n# export PRESIDIO_KEY=presidio-fr` },
+  { n: "Cursor", fr: "Settings → Models → OpenAI API Key : activer « Override OpenAI Base URL ».", en: "Settings → Models → OpenAI API Key: enable \"Override OpenAI Base URL\".",
+    s: `Base URL : ${B}/v1\nAPI key  : presidio-fr\nModel    : gpt-4o-mini  (ou tout modèle de votre fournisseur)` },
+  { n: "Continue (VS Code / JetBrains)", fr: "Dans config.yaml, un modèle avec apiBase.", en: "In config.yaml, a model with apiBase.",
+    s: `models:\n  - name: via presidio-fr\n    provider: openai\n    model: gpt-4o-mini\n    apiBase: ${B}/v1\n    apiKey: presidio-fr` },
+  { n: "Open WebUI / AnythingLLM / LibreChat", fr: "Fournisseur « OpenAI compatible » avec cette adresse.", en: "\"OpenAI compatible\" provider with this address.",
+    s: `Base URL : ${B}/v1\nAPI key  : presidio-fr` },
+  { n: "Python (openai)", fr: "Le SDK officiel, base_url changée.", en: "The official SDK with base_url changed.",
+    s: `from openai import OpenAI\nclient = OpenAI(base_url="${B}/v1", api_key="presidio-fr")\nr = client.chat.completions.create(model="gpt-4o-mini",\n    messages=[{"role": "user", "content": "…"}])` },
+  { n: "Python (anthropic)", fr: "Le SDK officiel, base_url changée.", en: "The official SDK with base_url changed.",
+    s: `from anthropic import Anthropic\nclient = Anthropic(base_url="${B}", api_key="presidio-fr")\nr = client.messages.create(model="claude-sonnet-4-5", max_tokens=1024,\n    messages=[{"role": "user", "content": "…"}])` },
+  { n: "Node.js (openai)", fr: "Le SDK officiel, baseURL changée.", en: "The official SDK with baseURL changed.",
+    s: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "${B}/v1", apiKey: "presidio-fr" });` },
+  { n: "curl", fr: "Pour vérifier que la passerelle répond.", en: "To check that the gateway answers.",
+    s: `curl ${B}/v1/chat/completions -H "content-type: application/json" \\\n  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"SIRET 552 100 554 00013"}]}'` },
+];
+
 const $ = (s) => document.querySelector(s);
-const api = async (path, opts) => { const r = await fetch(path, { headers: { "content-type": "application/json", "x-pfr-panel": "1" }, ...opts }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j; };
+let lang = localStorage.getItem("pfr.lang") || (navigator.language.startsWith("fr") ? "fr" : "en");
+const t = (k) => I18N[lang][k] ?? I18N.fr[k] ?? k;
+function applyI18n() {
+  document.documentElement.lang = lang;
+  document.querySelectorAll("[data-i]").forEach(el => { el.textContent = t(el.dataset.i); });
+  document.querySelectorAll("[data-lang]").forEach(b => b.classList.toggle("on", b.dataset.lang === lang));
+  $("#ov-covered").innerHTML = t("covered").map(x => `<li>${x}</li>`).join("");
+  $("#ov-notcovered").innerHTML = t("notcovered").map(x => `<li>${x}</li>`).join("");
+}
+document.querySelectorAll("[data-lang]").forEach(b => b.onclick = () => { lang = b.dataset.lang; localStorage.setItem("pfr.lang", lang); applyI18n(); render(); });
 document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
   document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
   document.querySelectorAll("main section").forEach(s => s.classList.toggle("on", s.id === b.dataset.tab));
   if (b.dataset.tab === "registre") loadRegistre();
 }));
-const UP_NAMES = { openai: "OpenAI (ou relais compatible)", mistral: "Mistral", anthropic: "Anthropic" };
-let cfg;
-async function load() {
-  const st = await api("/api/status");
-  cfg = st.config;
+const api = async (path, opts) => { const r = await fetch(path, { headers: { "content-type": "application/json", "x-pfr-panel": "1" }, ...opts }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j; };
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function copyBtn(text) { const b = document.createElement("button"); b.className = "btn ghost sm cp"; b.textContent = t("btn.copy"); b.onclick = () => { navigator.clipboard.writeText(text); b.textContent = t("btn.copied"); setTimeout(() => b.textContent = t("btn.copy"), 1500); }; return b; }
+function pre(el, text) { el.textContent = text; el.appendChild(copyBtn(text)); }
+
+let st;
+async function render() {
+  st = await api("/api/status");
+  const cfg = st.config, B = "http://127.0.0.1:" + cfg.port;
   $("#addr").textContent = "127.0.0.1:" + cfg.port;
-  $("#base-url").textContent = "http://127.0.0.1:" + cfg.port + "/v1";
-  $("#base-url-ant").textContent = "http://127.0.0.1:" + cfg.port;
-  const m = st.model;
-  $("#s-model").innerHTML = !cfg.policy.ner ? '<span class="warn">désactivé</span>' : m.status === "ready" ? '<span class="ok">prêt</span>' : m.status === "loading" ? '<span class="warn">chargement ' + (m.pct || 0) + ' %</span>' : '<span class="bad">erreur</span>';
+  const m = st.model, ml = !cfg.policy.ner ? ["muted", "model.off"] : m.status === "ready" ? ["ok", "model.ready"] : m.status === "loading" ? ["warn", "model.loading"] : ["bad", "model.error"];
+  $("#s-model").innerHTML = `<span class="pill ${ml[0]}">${t(ml[1])}${m.status === "loading" && cfg.policy.ner ? " " + (m.pct || 0) + " %" : ""}</span>`;
   $("#s-requests").textContent = st.stats.requests; $("#s-masked").textContent = st.stats.masked; $("#s-refused").textContent = st.stats.refused;
-  const t = st.entitlement;
-  $("#tier").textContent = t.tier === "licensed" ? "licence · " + t.email : t.tier === "trial" ? "essai jusqu'au " + t.until : "version gratuite";
-  $("#lic-status").innerHTML = t.tier === "licensed" ? '<span class="ok">Licence valide</span> — ' + t.email + ", " + t.seats + " poste(s), jusqu'au " + t.until
-    : t.tier === "trial" ? '<span class="warn">Période d\'essai</span> jusqu\'au ' + t.until + (t.reason ? " (clé refusée : " + t.reason + ")" : "")
-    : '<span class="bad">Version gratuite</span> : règles seules' + (t.reason ? " (clé refusée : " + t.reason + ")" : "");
-  $("#lic-key").value = cfg.licenseKey || "";
-  // upstreams
-  $("#up-list").innerHTML = Object.keys(UP_NAMES).map(n => { const u = cfg.upstreams[n] || {}; return `
-    <div class="card"><b>${UP_NAMES[n]}</b> ${u.configured ? '<span class="ok">· configuré</span>' : '<span class="muted">· non configuré</span>'}
-      <div class="row"><div><label>Base URL</label><input type="text" data-up="${n}" data-f="base" value="${u.base || (n === "openai" ? "https://api.openai.com" : n === "mistral" ? "https://api.mistral.ai" : "https://api.anthropic.com")}"></div>
-      <div><label>Clé API ${u.configured ? "(laisser vide pour conserver " + u.apiKey + ")" : ""}</label><input type="password" data-up="${n}" data-f="apiKey" placeholder="sk-…"></div>
-      <div style="flex:0"><button class="primary" data-save-up="${n}">Enregistrer</button> ${u.configured ? `<button class="ghost" data-del-up="${n}">Retirer</button>` : ""}</div></div></div>`; }).join("");
-  $("#def-up").innerHTML = Object.keys(cfg.upstreams).map(n => `<option value="${n}" ${n === cfg.defaultUpstream ? "selected" : ""}>${UP_NAMES[n] || n}</option>`).join("") || "<option value=''>aucun</option>";
-  document.querySelectorAll("[data-save-up]").forEach(b => b.onclick = async () => {
-    const n = b.dataset.saveUp, base = document.querySelector(`input[data-up=${n}][data-f=base]`).value, apiKey = document.querySelector(`input[data-up=${n}][data-f=apiKey]`).value;
-    try { await api("/api/config", { method: "PUT", body: JSON.stringify({ upstreams: { [n]: { base, apiKey } } }) }); $("#up-msg").textContent = "Enregistré."; load(); } catch (e) { $("#up-msg").innerHTML = '<span class="bad">' + e.message + "</span>"; }
-  });
-  document.querySelectorAll("[data-del-up]").forEach(b => b.onclick = async () => { await api("/api/config", { method: "PUT", body: JSON.stringify({ upstreams: { [b.dataset.delUp]: null } }) }); load(); });
-  // policy
-  $("#types").innerHTML = Object.entries(cfg.policy.types).map(([t, v]) => `<label><input type="checkbox" data-type="${t}" ${v ? "checked" : ""}> ${t}</label>`).join("");
-  $("#p-ner").checked = cfg.policy.ner; $("#p-notice").checked = cfg.policy.notice;
+  const e = st.entitlement;
+  const tier = $("#tier"); tier.className = "pill " + (e.tier === "licensed" ? "ok" : e.tier === "trial" ? "warn" : "muted");
+  tier.textContent = e.tier === "licensed" ? t("tier.licensed") + " · " + e.email : e.tier === "trial" ? t("tier.trial") + " " + e.until : t("tier.free");
+  $("#lic-status").innerHTML = e.tier === "licensed" ? `<span class="pill ok">${t("li.licensed")}</span> &nbsp;${esc(e.email)}, ${e.seats} ${t("li.seats")}, ${t("li.until")} ${e.until}`
+    : e.tier === "trial" ? `<span class="pill warn">${t("li.trial")}</span> &nbsp;${t("li.until")} ${e.until}${e.reason ? " · " + t("li.refused") + " (" + esc(e.reason) + ")" : ""}`
+    : `<span class="pill muted">${t("li.free")}</span>${e.reason ? " &nbsp;" + t("li.refused") + " (" + esc(e.reason) + ")" : ""}`;
+  if (document.activeElement !== $("#lic-key")) $("#lic-key").value = cfg.licenseKey || "";
+
+  // connect
+  pre($("#cn-openai"), B + "/v1"); pre($("#cn-anthropic"), B);
+  const tools = $("#tools"); tools.innerHTML = "";
+  for (const tool of TOOLS(B)) { const d = document.createElement("div"); d.className = "tool"; d.innerHTML = `<h3>${esc(tool.n)}</h3><p class="how">${esc(tool[lang] || tool.fr)}</p><pre></pre>`; pre(d.querySelector("pre"), tool.s); tools.appendChild(d); }
+
+  // upstreams (do not re-render while the user is typing)
+  if (!$("#up-list").contains(document.activeElement)) {
+    const DEF = { openai: "https://api.openai.com", mistral: "https://api.mistral.ai", anthropic: "https://api.anthropic.com" };
+    $("#up-list").innerHTML = Object.keys(DEF).map(n => { const u = cfg.upstreams[n] || {}; return `
+      <div class="card"><div class="row" style="align-items:center;margin-bottom:4px"><div><h2 style="margin:0">${t("up." + n)}</h2></div><div class="act">${u.configured ? `<span class="pill ok">${t("up.configured")}</span>` : `<span class="pill muted">${t("up.none")}</span>`}</div></div>
+        <div class="row"><div><label class="f">${t("up.base")}</label><input type="text" data-up="${n}" data-f="base" value="${esc(u.base || DEF[n])}"></div>
+        <div><label class="f">${t("up.key")} ${u.configured ? `<span class="muted">(${t("up.keep")} ${esc(u.apiKey)})</span>` : ""}</label><input type="password" data-up="${n}" data-f="apiKey" placeholder="sk-…" autocomplete="off"></div>
+        <div class="act"><button class="btn" data-save-up="${n}">${t("btn.save")}</button>${u.configured ? `<button class="btn ghost" data-del-up="${n}">${t("btn.remove")}</button>` : ""}</div></div></div>`; }).join("");
+    document.querySelectorAll("[data-save-up]").forEach(b => b.onclick = async () => {
+      const n = b.dataset.saveUp, base = document.querySelector(`input[data-up=${n}][data-f=base]`).value, apiKey = document.querySelector(`input[data-up=${n}][data-f=apiKey]`).value;
+      try { await api("/api/config", { method: "PUT", body: JSON.stringify({ upstreams: { [n]: { base, apiKey } } }) }); flash("#up-msg", t("up.saved")); render(); } catch (e) { flash("#up-msg", e.message, true); }
+    });
+    document.querySelectorAll("[data-del-up]").forEach(b => b.onclick = async () => { await api("/api/config", { method: "PUT", body: JSON.stringify({ upstreams: { [b.dataset.delUp]: null } }) }); render(); });
+    $("#def-up").innerHTML = Object.keys(cfg.upstreams).map(n => `<option value="${n}" ${n === cfg.defaultUpstream ? "selected" : ""}>${t("up." + n)}</option>`).join("") || `<option value="">—</option>`;
+  }
+  // policy (same guard)
+  if (!$("#policy").contains(document.activeElement)) {
+    $("#types").innerHTML = Object.entries(cfg.policy.types).map(([k, v]) => `<label class="chk"><input type="checkbox" data-type="${k}" ${v ? "checked" : ""}><span>${esc(t("t.types")[k] || k)} <span class="d">${k}</span></span></label>`).join("");
+    $("#p-ner").checked = cfg.policy.ner; $("#p-notice").checked = cfg.policy.notice;
+  }
 }
-$("#save-def").onclick = async () => { try { await api("/api/config", { method: "PUT", body: JSON.stringify({ defaultUpstream: $("#def-up").value }) }); $("#up-msg").textContent = "Enregistré."; load(); } catch (e) { $("#up-msg").innerHTML = '<span class="bad">' + e.message + "</span>"; } };
+function flash(sel, msg, bad) { const el = $(sel); el.textContent = msg; el.className = "msg" + (bad ? " bad" : ""); setTimeout(() => { if (el.textContent === msg) el.textContent = ""; }, 4000); }
+$("#save-def").onclick = async () => { try { await api("/api/config", { method: "PUT", body: JSON.stringify({ defaultUpstream: $("#def-up").value }) }); flash("#up-msg", t("up.saved")); render(); } catch (e) { flash("#up-msg", e.message, true); } };
 $("#save-policy").onclick = async () => {
   const types = {}; document.querySelectorAll("[data-type]").forEach(c => types[c.dataset.type] = c.checked);
-  try { await api("/api/config", { method: "PUT", body: JSON.stringify({ policy: { types, ner: $("#p-ner").checked, notice: $("#p-notice").checked } }) }); $("#policy-msg").textContent = "Enregistré, appliqué aux prochaines requêtes."; load(); } catch (e) { $("#policy-msg").innerHTML = '<span class="bad">' + e.message + "</span>"; }
+  try { await api("/api/config", { method: "PUT", body: JSON.stringify({ policy: { types, ner: $("#p-ner").checked, notice: $("#p-notice").checked } }) }); flash("#policy-msg", t("po.saved")); render(); } catch (e) { flash("#policy-msg", e.message, true); }
 };
-$("#save-lic").onclick = async () => { try { await api("/api/config", { method: "PUT", body: JSON.stringify({ licenseKey: $("#lic-key").value }) }); $("#lic-msg").textContent = "Enregistré."; load(); } catch (e) { $("#lic-msg").innerHTML = '<span class="bad">' + e.message + "</span>"; } };
+$("#save-lic").onclick = async () => { try { await api("/api/config", { method: "PUT", body: JSON.stringify({ licenseKey: $("#lic-key").value }) }); flash("#lic-msg", t("up.saved")); render(); } catch (e) { flash("#lic-msg", e.message, true); } };
 async function loadRegistre() {
   const rows = await api("/api/registre?limit=200");
-  $("#reg-body").innerHTML = rows.map(r => `<tr><td>${r.ts.replace("T", " ").slice(0, 19)}</td><td>${r.event}</td><td>${r.upstream || ""}</td><td>${r.model || ""}</td><td>${r.masked ?? ""}</td><td class="muted">${Object.entries(r.byType || {}).map(([k, v]) => k + " " + v).join(", ")}</td></tr>`).join("") || '<tr><td colspan="6" class="muted">aucune requête pour l\'instant</td></tr>';
+  $("#reg-body").innerHTML = rows.map(r => `<tr><td>${esc(r.ts.replace("T", " ").slice(0, 19))}</td><td>${esc(r.event)}</td><td>${esc(r.upstream || "")}</td><td>${esc(r.model || "")}</td><td>${r.masked ?? ""}</td><td class="muted">${Object.entries(r.byType || {}).map(([k, v]) => esc(k) + " " + v).join(", ")}</td></tr>`).join("") || `<tr><td colspan="6" class="muted">${t("rg.empty")}</td></tr>`;
 }
-load(); setInterval(load, 4000);
+applyI18n(); render(); setInterval(render, 5000);
 </script>
 </body>
 </html>

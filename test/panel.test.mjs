@@ -34,7 +34,7 @@ test("panel: status, config validation, key masking, policy effect, registre, pa
   try {
     // page + status; the real key never reaches the panel
     const page = await (await fetch(base + "/")).text();
-    assert.ok(page.includes("<title>presidio-fr — panneau</title>"));
+    assert.ok(page.includes("<title>presidio-fr</title>") && page.includes("Connect your tools"));
     let st = await (await api("/api/status")).json();
     assert.equal(st.config.upstreams.openai.apiKey, "••••1234");
     assert.equal(st.config.upstreams.openai.configured, true);
