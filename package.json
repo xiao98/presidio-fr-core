@@ -1,0 +1,19 @@
+{
+  "name": "presidio-fr-core",
+  "version": "0.1.0",
+  "description": "Local privacy gateway: masks French PII in LLM API requests before they leave the machine, restores it in streamed replies.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "presidio-fr-core": "src/cli.mjs"
+  },
+  "scripts": {
+    "sync": "node scripts/sync-engine.mjs",
+    "start": "node src/cli.mjs",
+    "test": "node --test test/unit.test.mjs",
+    "test:gateway": "node --test test/gateway.test.mjs"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "^4.3.0"
+  }
+}
