@@ -6,6 +6,7 @@ import { env, AutoTokenizer, AutoModelForTokenClassification } from "@huggingfac
 
 export const REPO = "Wismut/nym-pii-multilingual-small";
 const SUBFOLDER = "edge-int8";
+const ARGMAX = typeof process !== "undefined" && process.env && process.env.PFR_DECODE === "argmax";
 
 let tokenizer, model, id2label, loading;
 
@@ -96,7 +97,9 @@ export async function nerSpans(text) {
       mass[k] += p;
       if (labTag[l] === "B") bMass[k] += p;
     }
-    if (pO >= 0.5) { cur = null; continue; }
+    // PFR_DECODE=argmax reproduces plain argmax decoding (ablation only; never set in the product)
+    const argmaxO = ARGMAX && (() => { let b = 0; for (let l = 1; l < L; l++) if (data[t * L + l] > data[t * L + b]) b = l; return labTag[b] === "O"; })();
+    if (pO >= 0.5 || argmaxO) { cur = null; continue; }
     let k = 0;
     for (let i = 1; i < kinds.length; i++) if (mass[i] > mass[k]) k = i;
     const kind = kinds[k], score = 1 - pO;

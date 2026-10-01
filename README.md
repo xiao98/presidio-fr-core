@@ -22,6 +22,10 @@ Puis, dans le client : base URL `http://127.0.0.1:8787/v1`, clé API quelconque 
 
 Variables : `PFR_SHOW_MASKED=1` (affiche dans le terminal le dernier message tel que le fournisseur le reçoit, placeholders seulement), `PFR_PORT` (8787), `PFR_DATA_DIR` (`./data` : registre, clé de dérivation, cache du modèle), `PFR_NER=off` pour les règles seules, `PFR_DEFAULT_UPSTREAM`.
 
+## Panneau de contrôle
+
+`http://127.0.0.1:8787/` : vue d'ensemble (état du modèle, compteurs), fournisseurs (base URL + clé par fournisseur, fournisseur par défaut), politique (types masqués un par un, modèle local on/off, note de convention), registre (dernières requêtes, export CSV), licence. Les réglages vivent dans `data/config.json` ; les variables d'environnement ne servent qu'au premier démarrage pour le remplir. Les clés ne sont jamais renvoyées au panneau (seuls les 4 derniers caractères). Les modifications s'appliquent à la requête suivante, sans redémarrage ; activer le modèle depuis le panneau le charge en arrière-plan, et tant qu'il charge les requêtes qui en ont besoin sont refusées (503) plutôt que transmises en clair.
+
 ## Ce qui est masqué, et comment
 
 - Feuilles texte des messages (chaîne ou blocs `text`), résultats d'outils, arguments d'appels d'outils ; blocs `thinking` signés, images et autres champs sont rejoués tels quels.
@@ -36,15 +40,14 @@ Design repris de la lecture de [AstrLink](https://github.com/Calcium-Ion/AstrLin
 ## Tests
 
 ```bash
-npm test               # allocation, restauration en flux, parcours OpenAI et Anthropic
-npm run test:gateway   # passerelle complète contre un faux fournisseur : ce que le fournisseur reçoit, ce que le client lit, registre, refus si détecteur en panne
+npm test               # allocation, restauration en flux, parcours OpenAI/Anthropic, passerelle complète contre un faux fournisseur, panneau (validation, masquage des clés, effet de la politique)
 npm run sync           # recopie le moteur depuis ../presidio-fr-extension/src
 ```
 
 ## Limites
 
 - Pas de pièces jointes dans l'API (les clients envoient du texte) ; l'extraction PDF/Word/Excel reste dans l'extension.
-- Pas de gestion multi-utilisateurs ni de politique par type pour l'instant.
+- Pas de gestion multi-utilisateurs pour l'instant (un panneau, une politique, un registre par poste).
 - La passerelle doit tourner sur le poste (ou le réseau) du cabinet ; elle n'est pas un service hébergé.
 
 MIT.

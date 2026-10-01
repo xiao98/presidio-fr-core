@@ -43,8 +43,8 @@ function walkAnthropic(body, visit) {
   }
 }
 
-// maskRequest(protocol, body, {key, ner: async text -> raw nym spans, notice}) -> {body, map, findings}
-export async function maskRequest(protocol, body, { key, ner, notice = true }) {
+// maskRequest(protocol, body, {key, ner: async text -> raw nym spans, notice, types: {TYPE: bool}}) -> {body, map, findings}
+export async function maskRequest(protocol, body, { key, ner, notice = true, types = null }) {
   const bodyText = JSON.stringify(body);
   const alloc = createAllocator(key, { bodyText });
   const findings = {};            // type -> count (never values)
@@ -57,7 +57,8 @@ export async function maskRequest(protocol, body, { key, ner, notice = true }) {
     if (!leaf.text.trim() || redacted.has(leaf.text)) continue;
     const regex = findPII(leaf.text);
     const raw = ner ? await ner(leaf.text) : [];
-    const matches = combine(leaf.text, regex, raw);
+    let matches = combine(leaf.text, regex, raw);
+    if (types) matches = matches.filter(m => types[m.type] !== false);   // policy: a type switched off is left in clear
     if (!matches.length) continue;
     for (const m of matches) findings[m.type] = (findings[m.type] || 0) + 1;
     redacted.set(leaf.text, alloc.redact(leaf.text, matches));

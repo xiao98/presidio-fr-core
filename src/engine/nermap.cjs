@@ -60,8 +60,10 @@
   const CAPS = "[A-ZÀ-ÖØ-Þ][A-ZÀ-ÖØ-Þ'-]+";
   const CAP = "[A-ZÀ-ÖØ-Þ][a-zà-öø-ÿ'-]+";
   const RUN = new RegExp(`(?<![A-Za-zÀ-ÿ])(${CAPS}(?:[ \\u00a0]+${CAPS}){0,2})((?:[ \\u00a0]+${CAP}){0,2})(?![A-Za-zÀ-ÿ])`, "g");
+  const NO_CAPS = typeof process !== "undefined" && process.env && process.env.PFR_NO_CAPS === "1";   // ablation only
   function capsNames(text) {
     const out = [];
+    if (NO_CAPS) return out;
     let m;
     while ((m = RUN.exec(text)) !== null) {
       const caps = m[1].split(/[  ]+/);

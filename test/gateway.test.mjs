@@ -60,9 +60,9 @@ for (const protocol of ["openai", "anthropic"]) {
     const upPort = await up.listen();
     const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "pfr-core-"));
     const gw = createGateway({
-      port: 0, key: Buffer.from("0123456789abcdef0123456789abcdef"), dataDir, ner: null,
-      upstreams: { mistral: { base: "http://127.0.0.1:" + upPort, apiKey: "sk-test" }, anthropic: { base: "http://127.0.0.1:" + upPort, apiKey: "sk-ant" } },
-      defaultUpstream: "mistral",
+      cfg: { port: 0, upstreams: { mistral: { base: "http://127.0.0.1:" + upPort, apiKey: "sk-test" }, anthropic: { base: "http://127.0.0.1:" + upPort, apiKey: "sk-ant" } },
+        defaultUpstream: "mistral", policy: { types: {}, ner: false, notice: true }, licenseKey: "", installedAt: Date.now() },
+      key: Buffer.from("0123456789abcdef0123456789abcdef"), dataDir, ner: null, model: { status: "off" },
     });
     const { port } = await gw.listen();
     try {
@@ -105,8 +105,10 @@ test("fail closed: a detector error refuses the request instead of forwarding it
   const up = fakeUpstream("openai");
   const upPort = await up.listen();
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "pfr-core-"));
-  const gw = createGateway({ port: 0, key: Buffer.from("0123456789abcdef0123456789abcdef"), dataDir, ner: async () => { throw new Error("model crashed"); },
-    upstreams: { mistral: { base: "http://127.0.0.1:" + upPort, apiKey: "k" } }, defaultUpstream: "mistral" });
+  const gw = createGateway({
+    cfg: { port: 0, upstreams: { mistral: { base: "http://127.0.0.1:" + upPort, apiKey: "k" } }, defaultUpstream: "mistral", policy: { types: {}, ner: true, notice: true }, licenseKey: "", installedAt: Date.now() },
+    key: Buffer.from("0123456789abcdef0123456789abcdef"), dataDir, ner: async () => { throw new Error("model crashed"); }, model: { status: "ready" },
+  });
   const { port } = await gw.listen();
   try {
     const r = await fetch(`http://127.0.0.1:${port}/v1/chat/completions`, { method: "POST", headers: { "content-type": "application/json" },

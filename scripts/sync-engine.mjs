@@ -7,7 +7,7 @@ import path from "node:path";
 const src = path.resolve("../presidio-fr-extension/src"), dst = path.resolve("src/engine");
 fs.rmSync(dst, { recursive: true, force: true });
 fs.mkdirSync(dst, { recursive: true });
-for (const f of ["recognizers.js", "nermap.js", "vault.js", "ner.mjs"]) {
+for (const f of ["recognizers.js", "nermap.js", "vault.js", "license.js", "ner.mjs"]) {
   const body = fs.readFileSync(path.join(src, f), "utf8");
   const out = f.endsWith(".js") ? f.slice(0, -3) + ".cjs" : f;
   fs.writeFileSync(path.join(dst, out), `// GENERATED from presidio-fr-extension/src/${f} by scripts/sync-engine.mjs — do not edit here.\n` + body);

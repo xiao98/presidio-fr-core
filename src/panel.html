@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>presidio-fr — panneau</title>
+<style>
+  :root { --bg: #f8fafc; --fg: #0f172a; --muted: #64748b; --card: #fff; --line: #e2e8f0; --ok: #047857; --warn: #b45309; --bad: #b91c1c; --accent: #0f766e; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0b1220; --fg: #e5e7eb; --muted: #94a3b8; --card: #111827; --line: #1f2937; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 14px 20px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px; }
+  header h1 { font-size: 16px; margin: 0; }
+  header .pill { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--line); color: var(--muted); }
+  nav { display: flex; gap: 4px; padding: 10px 20px 0; border-bottom: 1px solid var(--line); }
+  nav button { background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 10px; color: var(--muted); cursor: pointer; font: inherit; }
+  nav button.on { color: var(--fg); border-color: var(--accent); }
+  main { padding: 18px 20px; max-width: 980px; }
+  section { display: none; } section.on { display: block; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+  .stat .n { font-size: 26px; font-weight: 600; } .stat .l { color: var(--muted); font-size: 12px; }
+  .ok { color: var(--ok); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+  label { display: block; margin: 8px 0 4px; color: var(--muted); font-size: 12px; }
+  input[type=text], input[type=password] { width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--fg); font: inherit; }
+  .row { display: flex; gap: 10px; align-items: end; flex-wrap: wrap; } .row > div { flex: 1; min-width: 180px; }
+  button.primary { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 8px 14px; font: inherit; cursor: pointer; }
+  button.ghost { background: none; border: 1px solid var(--line); border-radius: 6px; padding: 7px 12px; font: inherit; color: var(--fg); cursor: pointer; }
+  .types { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px 14px; }
+  .types label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--fg); margin: 2px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; } th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); } th { color: var(--muted); font-weight: 500; }
+  code { background: var(--line); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+  .msg { margin-top: 8px; font-size: 13px; min-height: 18px; }
+  .muted { color: var(--muted); }
+</style>
+</head>
+<body>
+<header><h1>🛡 presidio-fr</h1><span class="pill" id="addr"></span><span class="pill" id="tier"></span></header>
+<nav>
+  <button data-tab="overview" class="on">Vue d'ensemble</button>
+  <button data-tab="upstreams">Fournisseurs</button>
+  <button data-tab="policy">Politique</button>
+  <button data-tab="registre">Registre</button>
+  <button data-tab="licence">Licence</button>
+</nav>
+<main>
+  <section id="overview" class="on">
+    <div class="grid">
+      <div class="card stat"><div class="n" id="s-model">…</div><div class="l">modèle local (noms, adresses)</div></div>
+      <div class="card stat"><div class="n" id="s-requests">0</div><div class="l">requêtes traitées</div></div>
+      <div class="card stat"><div class="n" id="s-masked">0</div><div class="l">données masquées</div></div>
+      <div class="card stat"><div class="n" id="s-refused">0</div><div class="l">requêtes refusées (filtre indisponible)</div></div>
+    </div>
+    <div class="card">
+      <b>Brancher un client</b>
+      <p class="muted">Dans tout client compatible OpenAI (NextChat, AnythingLLM, un script) : base URL <code id="base-url"></code>, clé API quelconque, nom de modèle du fournisseur. Pour Anthropic : <code id="base-url-ant"></code>. Les vraies clés restent ici.</p>
+    </div>
+  </section>
+
+  <section id="upstreams">
+    <div id="up-list"></div>
+    <div class="card">
+      <label>Fournisseur par défaut (quand le nom de modèle ne permet pas de choisir)</label>
+      <div class="row"><div><select id="def-up" style="padding:7px;border-radius:6px;border:1px solid var(--line);background:var(--bg);color:var(--fg)"></select></div><div><button class="primary" id="save-def">Enregistrer</button></div></div>
+      <div class="msg" id="up-msg"></div>
+    </div>
+  </section>
+
+  <section id="policy">
+    <div class="card">
+      <b>Types masqués</b> <span class="muted">— un type décoché est transmis en clair</span>
+      <div class="types" id="types" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <label><input type="checkbox" id="p-ner"> Modèle local pour les noms, adresses, sociétés (sinon règles seules : numéros, e-mails, téléphones)</label>
+      <label><input type="checkbox" id="p-notice"> Injecter la note de convention dans le canal système (recommandé : le modèle recopie les marqueurs tels quels)</label>
+      <div style="margin-top:10px"><button class="primary" id="save-policy">Enregistrer</button></div>
+      <div class="msg" id="policy-msg"></div>
+    </div>
+  </section>
+
+  <section id="registre">
+    <div class="card">
+      <div class="row"><div><b>Dernières requêtes</b> <span class="muted">— jamais une valeur, seulement des comptes par type</span></div><div style="flex:0"><a class="ghost" href="/registre.csv" download style="text-decoration:none;display:inline-block">Exporter CSV</a></div></div>
+      <table style="margin-top:10px"><thead><tr><th>horodatage</th><th>événement</th><th>fournisseur</th><th>modèle</th><th>masqué</th><th>par type</th></tr></thead><tbody id="reg-body"></tbody></table>
+    </div>
+  </section>
+
+  <section id="licence">
+    <div class="card">
+      <div id="lic-status"></div>
+      <label>Clé de licence</label>
+      <input type="text" id="lic-key" placeholder="PFR1.…">
+      <div style="margin-top:10px"><button class="primary" id="save-lic">Enregistrer</button></div>
+      <div class="msg" id="lic-msg"></div>
+      <p class="muted">Sans clé, 14 jours d'essai complets puis règles seules. La clé est vérifiée localement (signature Ed25519), rien n'est envoyé.</p>
+    </div>
+  </section>
+</main>
+<script>
+const $ = (s) => document.querySelector(s);
+const api = async (path, opts) => { const r = await fetch(path, { headers: { "content-type": "application/json", "x-pfr-panel": "1" }, ...opts }); const j = await r.json(); if (!r.ok) throw new Error(j.error || r.status); return j; };
+document.querySelectorAll("nav button").forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll("main section").forEach(s => s.classList.toggle("on", s.id === b.dataset.tab));
+  if (b.dataset.tab === "registre") loadRegistre();
+}));
+const UP_NAMES = { openai: "OpenAI (ou relais compatible)", mistral: "Mistral", anthropic: "Anthropic" };
+let cfg;
+async function load() {
+  const st = await api("/api/status");
+  cfg = st.config;
+  $("#addr").textContent = "127.0.0.1:" + cfg.port;
+  $("#base-url").textContent = "http://127.0.0.1:" + cfg.port + "/v1";
+  $("#base-url-ant").textContent = "http://127.0.0.1:" + cfg.port;
+  const m = st.model;
+  $("#s-model").innerHTML = !cfg.policy.ner ? '<span class="warn">désactivé</span>' : m.status === "ready" ? '<span class="ok">prêt</span>' : m.status === "loading" ? '<span class="warn">chargement ' + (m.pct || 0) + ' %</span>' : '<span class="bad">erreur</span>';
+  $("#s-requests").textContent = st.stats.requests; $("#s-masked").textContent = st.stats.masked; $("#s-refused").textContent = st.stats.refused;
+  const t = st.entitlement;
+  $("#tier").textContent = t.tier === "licensed" ? "licence · " + t.email : t.tier === "trial" ? "essai jusqu'au " + t.until : "version gratuite";
+  $("#lic-status").innerHTML = t.tier === "licensed" ? '<span class="ok">Licence valide</span> — ' + t.email + ", " + t.seats + " poste(s), jusqu'au " + t.until
+    : t.tier === "trial" ? '<span class="warn">Période d\'essai</span> jusqu\'au ' + t.until + (t.reason ? " (clé refusée : " + t.reason + ")" : "")
+    : '<span class="bad">Version gratuite</span> : règles seules' + (t.reason ? " (clé refusée : " + t.reason + ")" : "");
+  $("#lic-key").value = cfg.licenseKey || "";
+  // upstreams
+  $("#up-list").innerHTML = Object.keys(UP_NAMES).map(n => { const u = cfg.upstreams[n] || {}; return `
+    <div class="card"><b>${UP_NAMES[n]}</b> ${u.configured ? '<span class="ok">· configuré</span>' : '<span class="muted">· non configuré</span>'}
+      <div class="row"><div><label>Base URL</label><input type="text" data-up="${n}" data-f="base" value="${u.base || ""}" placeholder="${n === "openai" ? "https://api.openai.com" : n === "mistral" ? "https://api.mistral.ai" : "https://api.anthropic.com"}"></div>
+      <div><label>Clé API ${u.configured ? "(laisser vide pour conserver " + u.apiKey + ")" : ""}</label><input type="password" data-up="${n}" data-f="apiKey" placeholder="sk-…"></div>
+      <div style="flex:0"><button class="primary" data-save-up="${n}">Enregistrer</button> ${u.configured ? `<button class="ghost" data-del-up="${n}">Retirer</button>` : ""}</div></div></div>`; }).join("");
+  $("#def-up").innerHTML = Object.keys(cfg.upstreams).map(n => `<option value="${n}" ${n === cfg.defaultUpstream ? "selected" : ""}>${UP_NAMES[n] || n}</option>`).join("") || "<option value=''>aucun</option>";
+  document.querySelectorAll("[data-save-up]").forEach(b => b.onclick = async () => {
+    const n = b.dataset.saveUp, base = document.querySelector(`input[data-up=${n}][data-f=base]`).value, apiKey = document.querySelector(`input[data-up=${n}][data-f=apiKey]`).value;
+    try { await api("/api/config", { method: "PUT", body: JSON.stringify({ upstreams: { [n]: { base, apiKey } } }) }); $("#up-msg").textContent = "Enregistré."; load(); } catch (e) { $("#up-msg").innerHTML = '<span class="bad">' + e.message + "</span>"; }
+  });
+  document.querySelectorAll("[data-del-up]").forEach(b => b.onclick = async () => { await api("/api/config", { method: "PUT", body: JSON.stringify({ upstreams: { [b.dataset.delUp]: null } }) }); load(); });
+  // policy
+  $("#types").innerHTML = Object.entries(cfg.policy.types).map(([t, v]) => `<label><input type="checkbox" data-type="${t}" ${v ? "checked" : ""}> ${t}</label>`).join("");
+  $("#p-ner").checked = cfg.policy.ner; $("#p-notice").checked = cfg.policy.notice;
+}
+$("#save-def").onclick = async () => { try { await api("/api/config", { method: "PUT", body: JSON.stringify({ defaultUpstream: $("#def-up").value }) }); $("#up-msg").textContent = "Enregistré."; load(); } catch (e) { $("#up-msg").innerHTML = '<span class="bad">' + e.message + "</span>"; } };
+$("#save-policy").onclick = async () => {
+  const types = {}; document.querySelectorAll("[data-type]").forEach(c => types[c.dataset.type] = c.checked);
+  try { await api("/api/config", { method: "PUT", body: JSON.stringify({ policy: { types, ner: $("#p-ner").checked, notice: $("#p-notice").checked } }) }); $("#policy-msg").textContent = "Enregistré, appliqué aux prochaines requêtes."; load(); } catch (e) { $("#policy-msg").innerHTML = '<span class="bad">' + e.message + "</span>"; }
+};
+$("#save-lic").onclick = async () => { try { await api("/api/config", { method: "PUT", body: JSON.stringify({ licenseKey: $("#lic-key").value }) }); $("#lic-msg").textContent = "Enregistré."; load(); } catch (e) { $("#lic-msg").innerHTML = '<span class="bad">' + e.message + "</span>"; } };
+async function loadRegistre() {
+  const rows = await api("/api/registre?limit=200");
+  $("#reg-body").innerHTML = rows.map(r => `<tr><td>${r.ts.replace("T", " ").slice(0, 19)}</td><td>${r.event}</td><td>${r.upstream || ""}</td><td>${r.model || ""}</td><td>${r.masked ?? ""}</td><td class="muted">${Object.entries(r.byType || {}).map(([k, v]) => k + " " + v).join(", ")}</td></tr>`).join("") || '<tr><td colspan="6" class="muted">aucune requête pour l\'instant</td></tr>';
+}
+load(); setInterval(load, 4000);
+</script>
+</body>
+</html>
