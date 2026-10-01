@@ -34,7 +34,8 @@
   .lang { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
   .lang button { background: none; border: 0; padding: 3px 10px; font: inherit; font-size: 12px; color: var(--ink-3); cursor: pointer; }
   .lang button.on { background: var(--ink); color: var(--panel); }
-  main { padding: 28px 32px 48px; max-width: 1040px; }
+  main { padding: 28px 32px 48px; max-width: 1040px; position: relative; }
+  .lang.top { position: absolute; top: 22px; right: 32px; background: var(--panel); }
   h1 { font-size: 20px; margin: 0 0 4px; } .lead { color: var(--ink-2); margin: 0 0 22px; }
   section { display: none; } section.on { display: block; }
   .card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
@@ -91,6 +92,7 @@
   </aside>
 
   <main>
+    <div class="lang top"><button data-lang="fr">FR</button><button data-lang="en">EN</button><button data-lang="zh">中文</button></div>
     <section id="overview" class="on">
       <h1 data-i="ov.title"></h1><p class="lead" data-i="ov.lead"></p>
       <div class="grid">
@@ -271,6 +273,8 @@ const TOOLS = (B) => [
 ];
 
 const $ = (s) => document.querySelector(s);
+const urlLang = new URLSearchParams(location.search).get("lang");
+if (urlLang && ["fr", "en", "zh"].includes(urlLang)) localStorage.setItem("pfr.lang", urlLang);
 let lang = localStorage.getItem("pfr.lang") || (navigator.language.startsWith("fr") ? "fr" : navigator.language.startsWith("zh") ? "zh" : "en");
 const t = (k) => I18N[lang][k] ?? I18N.en[k] ?? I18N.fr[k] ?? k;
 function applyI18n() {
