@@ -85,7 +85,7 @@
       <button data-tab="licence"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="15" r="4"/><path d="M10.9 12.1 21 2M15 7l3 3M18 4l3 3"/></svg><span data-i="nav.licence"></span></button>
     </nav>
     <div class="side-foot">
-      <div class="lang"><button data-lang="fr">FR</button><button data-lang="en">EN</button></div>
+      <div class="lang"><button data-lang="fr">FR</button><button data-lang="en">EN</button><button data-lang="zh">中文</button></div>
       <div id="tier" class="pill muted"></div>
     </div>
   </aside>
@@ -217,32 +217,62 @@ const I18N = {
     "covered": ["Claude Code, Codex CLI, Gemini CLI", "Cursor, Continue, Zed, Cline", "Open WebUI, AnythingLLM, LibreChat, NextChat", "Scripts and internal tools (OpenAI / Anthropic SDKs)", "ChatGPT, Claude.ai and Le Chat in the browser, through the extension"],
     "notcovered": ["ChatGPT and Claude desktop apps", "Copilot in Office, assistants built into SaaS products"],
   },
+  zh: {
+    "nav.overview": "总览", "nav.connect": "连接你的工具", "nav.upstreams": "模型供应商", "nav.policy": "脱敏策略", "nav.registre": "审计日志", "nav.licence": "许可证",
+    "btn.save": "保存", "btn.remove": "移除", "btn.copy": "复制", "btn.copied": "已复制",
+    "ov.title": "本地隐私网关", "ov.lead": "你的 AI 工具只和这个网关对话；它在转发给模型供应商之前把个人数据替换成占位符，在回复里再还原。任何明文都不会离开这台电脑。",
+    "ov.model": "本地模型（人名、地址、公司）", "ov.requests": "已处理请求", "ov.masked": "已脱敏数据", "ov.refused": "已拒绝请求（检测器不可用）",
+    "ov.covered.t": "受保护的工具", "ov.covered.s": "任何可以填写 API 地址的工具。",
+    "ov.notcovered.t": "不受保护的", "ov.notcovered.s": "不允许修改 API 地址的应用。",
+    "cn.title": "连接你的工具", "cn.lead": "只有一条规则：把供应商的地址换成网关地址。工具那边的 API key 随便填，真正的 key 在这里。",
+    "cn.rule.t": "网关地址", "cn.rule.s": "OpenAI 兼容（Chat Completions）和 Anthropic（Messages）。",
+    "up.title": "模型供应商", "up.lead": "脱敏后的请求转发给这里配置的供应商。密钥只存在这台电脑上，不会回传到这个页面。",
+    "up.default.t": "默认供应商", "up.default.s": "模型名无法判断时使用（gpt-… → OpenAI，mistral-… → Mistral，claude-… → Anthropic）。",
+    "up.base": "地址（base URL）", "up.key": "API 密钥", "up.keep": "留空则保留", "up.configured": "已配置", "up.none": "未配置", "up.saved": "已保存。",
+    "up.openai": "OpenAI 或兼容中转", "up.mistral": "Mistral", "up.anthropic": "Anthropic",
+    "po.title": "脱敏策略", "po.lead": "下一条请求即生效，无需重启。",
+    "po.types.t": "脱敏类型", "po.types.s": "取消勾选的类型会以明文转发。",
+    "po.engine.t": "引擎", "po.ner": "用本地模型识别人名、地址和公司", "po.ner.d": "关闭则只用规则：号码、证件、邮箱、电话。",
+    "po.notice": "在系统提示中注入占位符约定", "po.notice.d": "告诉模型原样复制占位符。建议开启。",
+    "po.saved": "已保存，对后续请求生效。",
+    "rg.title": "审计日志", "rg.lead": "每条请求一行：时间、供应商、模型、各类型脱敏数量。永远不记录具体值。",
+    "rg.recent": "最近请求", "rg.export": "导出 CSV", "rg.empty": "还没有请求",
+    "rg.c.ts": "时间", "rg.c.ev": "事件", "rg.c.up": "供应商", "rg.c.model": "模型", "rg.c.n": "脱敏数", "rg.c.types": "按类型",
+    "li.title": "许可证", "li.lead": "本地验证（Ed25519 签名），不联网。",
+    "li.key": "许可证密钥", "li.note": "无密钥：14 天完整试用，之后只保留规则（模型关闭）。",
+    "li.licensed": "许可证有效", "li.trial": "试用期", "li.free": "免费版：仅规则", "li.until": "至", "li.seats": "席位", "li.refused": "密钥无效",
+    "tier.licensed": "已授权", "tier.trial": "试用至", "tier.free": "免费版",
+    "model.ready": "就绪", "model.loading": "加载中", "model.off": "已关闭", "model.error": "错误",
+    "t.types": { PERSON: "人名", ADDRESS: "邮政地址", COMPANY: "公司", DOB: "出生日期", NIR: "社保号（NIR）", SIREN: "SIREN", SIRET: "SIRET", IBAN: "IBAN", FISCAL: "税号", PLAQUE: "车牌", PASSEPORT: "护照", EMAIL: "邮箱", TEL: "电话", ID: "其他证件号", CARD: "银行卡", SECRET: "密钥、API key" },
+    "covered": ["Claude Code、Codex CLI、Gemini CLI", "Cursor、Continue、Zed、Cline", "Open WebUI、AnythingLLM、LibreChat、NextChat", "脚本和内部工具（OpenAI / Anthropic SDK）", "浏览器里的 ChatGPT、Claude.ai、Le Chat，通过扩展"],
+    "notcovered": ["ChatGPT 和 Claude 的桌面应用", "Office 里的 Copilot、SaaS 内置助手"],
+  },
 };
 // tool recipes: {name, how, snippet(base)}
 const TOOLS = (B) => [
-  { n: "Claude Code", fr: "Deux variables d'environnement avant de lancer claude.", en: "Two environment variables before starting claude.",
+  { n: "Claude Code", fr: "Deux variables d'environnement avant de lancer claude.", en: "Two environment variables before starting claude.", zh: "启动 claude 前设两个环境变量。",
     s: `export ANTHROPIC_BASE_URL=${B}\nexport ANTHROPIC_API_KEY=presidio-fr\nclaude` },
-  { n: "Codex CLI", fr: "Un fournisseur « presidio » dans ~/.codex/config.toml.", en: "A \"presidio\" provider in ~/.codex/config.toml.",
+  { n: "Codex CLI", fr: "Un fournisseur « presidio » dans ~/.codex/config.toml.", en: "A \"presidio\" provider in ~/.codex/config.toml.", zh: "在 ~/.codex/config.toml 里加一个 presidio 供应商。",
     s: `[model_providers.presidio]\nname = "presidio-fr"\nbase_url = "${B}/v1"\nenv_key = "PRESIDIO_KEY"\n\nmodel_provider = "presidio"\n# export PRESIDIO_KEY=presidio-fr` },
-  { n: "Cursor", fr: "Settings → Models → OpenAI API Key : activer « Override OpenAI Base URL ».", en: "Settings → Models → OpenAI API Key: enable \"Override OpenAI Base URL\".",
+  { n: "Cursor", fr: "Settings → Models → OpenAI API Key : activer « Override OpenAI Base URL ».", en: "Settings → Models → OpenAI API Key: enable \"Override OpenAI Base URL\".", zh: "设置 → Models → OpenAI API Key：开启 Override OpenAI Base URL。",
     s: `Base URL : ${B}/v1\nAPI key  : presidio-fr\nModel    : gpt-4o-mini` },
-  { n: "Continue (VS Code / JetBrains)", fr: "Dans config.yaml, un modèle avec apiBase.", en: "In config.yaml, a model with apiBase.",
+  { n: "Continue (VS Code / JetBrains)", fr: "Dans config.yaml, un modèle avec apiBase.", en: "In config.yaml, a model with apiBase.", zh: "在 config.yaml 里加一个带 apiBase 的模型。",
     s: `models:\n  - name: via presidio-fr\n    provider: openai\n    model: gpt-4o-mini\n    apiBase: ${B}/v1\n    apiKey: presidio-fr` },
-  { n: "Open WebUI / AnythingLLM / LibreChat", fr: "Fournisseur « OpenAI compatible » avec cette adresse.", en: "\"OpenAI compatible\" provider with this address.",
+  { n: "Open WebUI / AnythingLLM / LibreChat", fr: "Fournisseur « OpenAI compatible » avec cette adresse.", en: "\"OpenAI compatible\" provider with this address.", zh: "选“OpenAI 兼容”供应商，填这个地址。",
     s: `Base URL : ${B}/v1\nAPI key  : presidio-fr` },
-  { n: "Python (openai)", fr: "Le SDK officiel, base_url changée.", en: "The official SDK with base_url changed.",
+  { n: "Python (openai)", fr: "Le SDK officiel, base_url changée.", en: "The official SDK with base_url changed.", zh: "官方 SDK，改 base_url。",
     s: `from openai import OpenAI\nclient = OpenAI(base_url="${B}/v1", api_key="presidio-fr")\nr = client.chat.completions.create(model="gpt-4o-mini",\n    messages=[{"role": "user", "content": "…"}])` },
-  { n: "Python (anthropic)", fr: "Le SDK officiel, base_url changée.", en: "The official SDK with base_url changed.",
+  { n: "Python (anthropic)", fr: "Le SDK officiel, base_url changée.", en: "The official SDK with base_url changed.", zh: "官方 SDK，改 base_url。",
     s: `from anthropic import Anthropic\nclient = Anthropic(base_url="${B}", api_key="presidio-fr")\nr = client.messages.create(model="claude-sonnet-4-5", max_tokens=1024,\n    messages=[{"role": "user", "content": "…"}])` },
-  { n: "Node.js (openai)", fr: "Le SDK officiel, baseURL changée.", en: "The official SDK with baseURL changed.",
+  { n: "Node.js (openai)", fr: "Le SDK officiel, baseURL changée.", en: "The official SDK with baseURL changed.", zh: "官方 SDK，改 baseURL。",
     s: `import OpenAI from "openai";\nconst client = new OpenAI({ baseURL: "${B}/v1", apiKey: "presidio-fr" });` },
-  { n: "curl", fr: "Pour vérifier que la passerelle répond.", en: "To check that the gateway answers.",
+  { n: "curl", fr: "Pour vérifier que la passerelle répond.", en: "To check that the gateway answers.", zh: "用来确认网关有响应。",
     s: `curl ${B}/v1/chat/completions -H "content-type: application/json" \\\n  -d '{"model":"gpt-4o-mini","messages":[{"role":"user","content":"SIRET 552 100 554 00013"}]}'` },
 ];
 
 const $ = (s) => document.querySelector(s);
-let lang = localStorage.getItem("pfr.lang") || (navigator.language.startsWith("fr") ? "fr" : "en");
-const t = (k) => I18N[lang][k] ?? I18N.fr[k] ?? k;
+let lang = localStorage.getItem("pfr.lang") || (navigator.language.startsWith("fr") ? "fr" : navigator.language.startsWith("zh") ? "zh" : "en");
+const t = (k) => I18N[lang][k] ?? I18N.en[k] ?? I18N.fr[k] ?? k;
 function applyI18n() {
   document.documentElement.lang = lang;
   document.querySelectorAll("[data-i]").forEach(el => { el.textContent = t(el.dataset.i); });
@@ -280,7 +310,7 @@ async function render() {
   // connect
   pre($("#cn-openai"), B + "/v1"); pre($("#cn-anthropic"), B);
   const tools = $("#tools"); tools.innerHTML = "";
-  for (const tool of TOOLS(B)) { const d = document.createElement("div"); d.className = "tool"; d.innerHTML = `<h3>${esc(tool.n)}</h3><p class="how">${esc(tool[lang] || tool.fr)}</p><pre></pre>`; pre(d.querySelector("pre"), tool.s); tools.appendChild(d); }
+  for (const tool of TOOLS(B)) { const d = document.createElement("div"); d.className = "tool"; d.innerHTML = `<h3>${esc(tool.n)}</h3><p class="how">${esc(tool[lang] || tool.en || tool.fr)}</p><pre></pre>`; pre(d.querySelector("pre"), tool.s); tools.appendChild(d); }
 
   // upstreams (do not re-render while the user is typing)
   if (!$("#up-list").contains(document.activeElement)) {

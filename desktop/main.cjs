@@ -8,10 +8,13 @@ const fs = require("node:fs");
 const http = require("node:http");
 
 const PORT = Number(process.env.PFR_PORT || 8787);
-const isFr = () => (app.getLocale() || "fr").toLowerCase().startsWith("fr");
-const T = () => isFr()
-  ? { open: "Ouvrir le panneau", start: "Lancer au démarrage", quit: "Quitter", status: "Passerelle", running: "en service", starting: "démarrage…", stopped: "arrêtée", failed: "La passerelle n'a pas pu démarrer", site: "Site et documentation" }
-  : { open: "Open panel", start: "Start at login", quit: "Quit", status: "Gateway", running: "running", starting: "starting…", stopped: "stopped", failed: "The gateway could not start", site: "Website and docs" };
+const locale = () => { const l = (app.getLocale() || "fr").toLowerCase(); return l.startsWith("fr") ? "fr" : l.startsWith("zh") ? "zh" : "en"; };
+const STR = {
+  fr: { open: "Ouvrir le panneau", start: "Lancer au démarrage", quit: "Quitter", status: "Passerelle", running: "en service", starting: "démarrage…", stopped: "arrêtée", failed: "La passerelle n'a pas pu démarrer", site: "Site et documentation" },
+  en: { open: "Open panel", start: "Start at login", quit: "Quit", status: "Gateway", running: "running", starting: "starting…", stopped: "stopped", failed: "The gateway could not start", site: "Website and docs" },
+  zh: { open: "打开面板", start: "开机自启", quit: "退出", status: "网关", running: "运行中", starting: "启动中…", stopped: "已停止", failed: "网关无法启动", site: "网站与文档" },
+};
+const T = () => STR[locale()];
 
 if (!app.requestSingleInstanceLock()) app.quit();
 
